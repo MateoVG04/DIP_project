@@ -21,5 +21,9 @@ for frame in video_data:
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 
+    if cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1:
+        print("Window closed.")
+        break
+
 # Release the display window
 cv2.destroyAllWindows()
