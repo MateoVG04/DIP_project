@@ -1,7 +1,5 @@
 import numpy as np
 import cv2
-from tenacity import retry_unless_exception_type
-
 
 def load_video_eager():
     # Eager loaded data file (all in memory before continuing)
