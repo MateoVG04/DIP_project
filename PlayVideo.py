@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
-import Disp_Difference_Frames
-from Disp_Difference_Frames import difference
+from openpyxl.styles.builtins import total
 
 
 class PlayVideo():
@@ -10,6 +9,8 @@ class PlayVideo():
         self.screen_width, self.screen_height = self.get_screen_resolution()
         self.video_data = self.load_video_lazy()
         self.fps = 380
+        self.is_counter = False
+        self.counter = 0
 
     def get_screen_resolution(self):
         screen = cv2.namedWindow(self.windowName, cv2.WINDOW_NORMAL)
@@ -29,11 +30,22 @@ class PlayVideo():
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
         return np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
 
+    def frameCounter(self):
+        if not self.is_counter:
+            self.counter = 1
+            self.is_counter = True
+        else:
+            self.counter +=1
+        totalFrames = len(self.video_data)
+        return self.counter, totalFrames
+
     def playVideoNormal(self):
         for frame in self.video_data:
             # Display the frame
             resizedFrame = cv2.resize(frame, (self.screen_width, self.screen_height), interpolation=cv2.INTER_AREA)
             cv2.imshow('Video', resizedFrame)
+            counter, totalFrames = self.frameCounter()
+            cv2.setWindowTitle("Video","frame "+str(counter)+" of "+str(totalFrames))
 
             # Wait for 25ms before moving to the next frame (40 FPS)
             if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -42,6 +54,8 @@ class PlayVideo():
             if cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1:
                 print("Window closed.")
                 break
+        self.is_counter = False
+        self.counter = 0
 
 
     def playVideoDifference(self):
@@ -59,11 +73,16 @@ class PlayVideo():
                 cv2.namedWindow('Video', cv2.WINDOW_NORMAL)
                 cv2.resizeWindow('Video', 800, 600)
                 cv2.imshow('Video', 255 - frame_diff)
+                counter, totalFrames = self.frameCounter()
+                cv2.setWindowTitle("Video", "frame " + str(counter) + " of " + str(totalFrames))
 
             # Update the Previousframe
             Previousframe = blur_frame
             if cv2.waitKey(25) & 0xFF == ord("q"):
                 break
             # Wait for 25ms before moving to the next frame (approx. 40 FPS)
+
+        self.is_counter = False
+        self.counter = 0
 
 
