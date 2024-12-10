@@ -19,11 +19,13 @@ class PlayVideo():
         cv2.destroyWindow(self.windowName)
         return screen_width,screen_height
 
-    def load_video_eager(self):
+    @classmethod
+    def load_video_eager(cls):
         # Eager loaded data file (all in memory before continuing)
         return np.load("Data/Ballenwerper_sync_380fps_006.npy")
 
-    def load_video_lazy(self):
+    @classmethod
+    def load_video_lazy(cls):
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
         return np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
 
