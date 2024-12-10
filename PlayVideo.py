@@ -1,3 +1,5 @@
+from typing import Optional
+
 import numpy as np
 import cv2
 from openpyxl.styles.builtins import total
@@ -21,14 +23,19 @@ class PlayVideo():
         return screen_width,screen_height
 
     @classmethod
-    def load_video_eager(cls):
+    def load_video_eager(cls, file_path: Optional[str] = None):
+        if file_path is None:
+            file_path = 'Data/Ballenwerper_sync_380fps_006.npy'
         # Eager loaded data file (all in memory before continuing)
-        return np.load("Data/Ballenwerper_sync_380fps_006.npy")
+        return np.load(file_path)
 
     @classmethod
-    def load_video_lazy(cls):
+    def load_video_lazy(cls, file_path: Optional[str] = None):
+        if file_path is None:
+            file_path = 'Data/Ballenwerper_sync_380fps_006.npy'
+
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
-        return np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
+        return np.lib.format.open_memmap(filename=file_path, mode='r+')
 
     def frameCounter(self):
         if not self.is_counter:
