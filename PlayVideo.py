@@ -19,11 +19,13 @@ class PlayVideo():
         cv2.destroyWindow(self.windowName)
         return screen_width,screen_height
 
-    def load_video_eager(self):
+    @classmethod
+    def load_video_eager(cls):
         # Eager loaded data file (all in memory before continuing)
         return np.load("Data/Ballenwerper_sync_380fps_006.npy")
 
-    def load_video_lazy(self):
+    @classmethod
+    def load_video_lazy(cls):
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
         return np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
 
@@ -40,9 +42,28 @@ class PlayVideo():
             if cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1:
                 print("Window closed.")
                 break
-        # Release the display window
-        cv2.destroyAllWindows()
+
 
     def playVideoDifference(self):
-        difference(self.video_data)
+        Previousframe = None  # Initialize Previousframe as None
+        # Assuming the shape is (num_frames, height, width, channels)
+        for frame in self.video_data:
+            # Apply Gaussian blur to reduce noise
+            blur_frame = cv2.GaussianBlur(frame, (5, 5), 0)
+
+            if Previousframe is not None:
+                # Compute absolute difference between frames
+                frame_diff = cv2.absdiff(blur_frame, Previousframe)
+
+                # Display the frame difference
+                cv2.namedWindow('Video', cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('Video', 800, 600)
+                cv2.imshow('Video', 255 - frame_diff)
+
+            # Update the Previousframe
+            Previousframe = blur_frame
+            if cv2.waitKey(25) & 0xFF == ord("q"):
+                break
+            # Wait for 25ms before moving to the next frame (approx. 40 FPS)
+
 
