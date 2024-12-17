@@ -1,3 +1,6 @@
+import math
+from itertools import pairwise
+
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
@@ -8,9 +11,51 @@ class TrajectoryAnalysis:
         self.boxList = boxes_list
         self.playVideo = playVideo
 
+    @classmethod
+    def calc_middle(cls, input_array: list[cv2.typing.Rect]) -> tuple[int, int]:
+        # The rectangle class is a tuple[x: int, y: int, int, int]
+        # We calculate the min x and min y per index
+        min_x = min(input_array, key=lambda rect: rect[0])
+        min_y = min(input_array, key=lambda rect: rect[1])
+        return min_x[0], min_y[1]
+
+    @classmethod
+    def align_with_zero(cls, input_array: list[cv2.typing.Rect]) -> list[cv2.typing.Rect]:
+        # Calculate middle points
+        min_x, min_y = cls.calc_middle(input_array)
+
+        # We subtract these values off every rectangle in the list and return
+        return list(map(lambda rect: (rect[0] - min_x, rect[1] - min_y, rect[2], rect[3]), input_array))
+
+    @classmethod
+    def calculate_angle(cls, input_array: list[cv2.typing.Rect]) -> list[float]:
+        """
+        More information for calculating the angle
+        https://stackoverflow.com/questions/42258637/how-to-know-the-angle-between-two-vectors
+        https://www.tutorialgateway.org/python-atan2/
+        :param input_array:
+        :return: list of angles represented by floating point
+        """
+
+        # First align the boxes with 0 and calculate their middle
+        zero_aligned_list = cls.align_with_zero(input_array)
+        middle_x, middle_y = cls.calc_middle(zero_aligned_list)
+
+        return list(map(lambda rect: math.atan2(rect[0] - middle_x, rect[1] - middle_y), zero_aligned_list))
+
+    @classmethod
+    def calculate_angle_speed(cls, input_angles: list[float]) -> list[float]:
+        """
+        Iterates pair wise (per two elements) and calculates the angle
+            pairwise(input_angles) returns a list[tuple[float, float], ...] for every n, n+1 element
+            lambda operation calculates the difference in angle.
+            Could be negative!
+        :param input_angles:
+        :return: list of difference in angle represented by floating point
+        """
+        return list(map(lambda pair: abs(pair[1] - pair[0]), pairwise(input_angles)))
 
     def displayPath(self):
-        plt.plot([1, 2, 3, 4])
         x_list: list[int] = []
         y_list: list[int] = []
         for box in self.boxList:
@@ -25,4 +70,10 @@ class TrajectoryAnalysis:
             centerYCord = (yCord + height) / 2
             y_list.append(centerYCord)
         plt.plot(x_list, y_list)
+        plt.show()
+
+    def display_angle(self):
+        angles = self.calculate_angle(self.boxList)
+        x_axis = list(range(len(self.boxList)))
+        plt.plot(x_axis, angles)
         plt.show()

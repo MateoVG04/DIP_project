@@ -33,7 +33,7 @@ class PlayVideo:
     @classmethod
     def load_video_lazy(cls, file_path: Optional[str] = None):
         if file_path is None:
-            file_path = 'Data/Ballenwerper_sync_380fps_006 - Copy.npy'
+            file_path = 'Data/Ballenwerper_sync_380fps_006.npy'
 
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
         return np.lib.format.open_memmap(filename=file_path, mode='r+')
