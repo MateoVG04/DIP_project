@@ -79,9 +79,7 @@ class PlayVideo:
             # Display the frame
             resizedFrame = cv2.resize(frame, (self.screen_width, self.screen_height), interpolation=cv2.INTER_AREA)
             #resizedFrame = cv2.GaussianBlur(resizedFrame, (5, 5), 0)
-            print('first resizedFrame: '+str(resizedFrame))
             #resizedFrame = cv2.threshold(resizedFrame,50,255,cv2.THRESH_BINARY)[1]
-            print(str(resizedFrame))
             #resizedFrame = self.hitMissOperation(resizedFrame,hitMissElement)
             cv2.imshow('Video', resizedFrame)
             counter, totalFrames = self.frameCounter()
@@ -129,22 +127,7 @@ class PlayVideo:
         self.is_counter = False
         self.counter = 0
 
-    def displayPath(self,boxList):
-        plt.plot([1,2,3,4])
-        x_list: list[int] = []
-        y_list: list[int] = []
-        for box in boxList:
-            xCord = box[0]
-            yCord = box[1]
-            width = box[2]
-            height = box[3]
-            centerXCord = (xCord+width)/2
-            x_list.append(centerXCord)
 
-            centerYCord = (yCord+height)/2
-            y_list.append(centerYCord)
-        plt.plot(x_list,y_list)
-        plt.show()
 
 
 
