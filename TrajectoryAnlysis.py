@@ -1,6 +1,6 @@
 import math
 from itertools import pairwise
-
+import cv2
 import matplotlib.pyplot as plt
 
 
@@ -55,7 +55,6 @@ class TrajectoryAnalysis:
         return list(map(lambda pair: abs(pair[1] - pair[0]), pairwise(input_angles)))
 
     def displayPath(self):
-        plt.plot([1, 2, 3, 4])
         x_list: list[int] = []
         y_list: list[int] = []
         for box in self.boxList:
@@ -70,10 +69,35 @@ class TrajectoryAnalysis:
             centerYCord = (yCord + height) / 2
             y_list.append(centerYCord)
         plt.plot(x_list, y_list)
-        plt.show()
+        plt.title('position')
+        plt.xlabel('x-coordinaat')
+        plt.ylabel('y-coordinaat')
+        #plt.show()
+
+    def calculate_degree(self,angles_rad):
+        angles_degree = []
+        for angle in angles_rad:
+            angle_calculate = angle * (180/math.pi)
+            angles_degree.append(angle_calculate)
+        return angles_degree
 
     def display_angle(self):
-        angles = self.calculate_angle(self.boxList)
+        angles_rad = self.calculate_angle(self.boxList)
+        angles_degree = self.calculate_degree(angles_rad)
         x_axis = list(range(len(self.boxList)))
-        plt.plot(x_axis, angles)
-        plt.show()
+        plt.plot(x_axis, angles_degree)
+        plt.title('angles')
+        plt.xlabel('[°]')
+        plt.ylabel('frame')
+        #plt.show()
+
+    def display_speed(self):
+        angles = self.calculate_angle(self.boxList)
+        angles_degree = self.calculate_degree(angles)
+        speed = self.calculate_angle_speed(angles_degree)
+        x_axis = list(range(len(self.boxList)-1))
+        plt.plot(x_axis,speed)
+        plt.title('Speed')
+        plt.title('[°/frame]')
+        plt.ylabel('frame')
+        #plt.show()
