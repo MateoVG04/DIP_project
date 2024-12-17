@@ -2,6 +2,8 @@ from typing import Optional
 
 import numpy as np
 import cv2
+from openpyxl.styles.builtins import total
+import matplotlib.pyplot as plt
 
 
 class PlayVideo:
@@ -31,7 +33,7 @@ class PlayVideo:
     @classmethod
     def load_video_lazy(cls, file_path: Optional[str] = None):
         if file_path is None:
-            file_path = 'Data/Ballenwerper_sync_380fps_006.npy'
+            file_path = 'Data/Ballenwerper_sync_380fps_006 - Copy.npy'
 
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
         return np.lib.format.open_memmap(filename=file_path, mode='r+')
@@ -58,6 +60,35 @@ class PlayVideo:
         # Wait for 25ms before moving to the next frame (40 FPS)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             return
+    def hitMissOperation(self,frame,hitMissElement):
+        # You combine them using a single matrix where the foreground has 1s, the background has -1s, and unused areas have 0s.
+        hitMiss = cv2.morphologyEx(frame,cv2.MORPH_HITMISS,hitMissElement)
+        return hitMiss
+
+    def playVideoNormal(self):
+        hitMissElement = np.array([[0, 0, 0, 0, 1, 0, 0, 0, 0,],
+                                     [0, 0, 0, 1, 1, 1, 0, 0, 0,],
+                                     [0, 0, 1, 1, 1, 1, 1, 0, 0,],
+                                     [0, 1, 1, 1, 1, 1, 1, 1, 0,],
+                                     [1, 1, 1, 1, 1, 1, 1, 1, 1,],
+                                     [0, 1, 1, 1, 1, 1, 1, 1, 0,],
+                                     [0, 0, 1, 1, 1, 1, 1, 0, 0,],
+                                     [0, 0, 0, 1, 1, 1, 0, 0, 0,],
+                                     [0, 0, 0, 0, 1, 0, 0, 0, 0,]])
+        for frame in self.video_data:
+            # Display the frame
+            resizedFrame = cv2.resize(frame, (self.screen_width, self.screen_height), interpolation=cv2.INTER_AREA)
+            #resizedFrame = cv2.GaussianBlur(resizedFrame, (5, 5), 0)
+            print('first resizedFrame: '+str(resizedFrame))
+            #resizedFrame = cv2.threshold(resizedFrame,50,255,cv2.THRESH_BINARY)[1]
+            print(str(resizedFrame))
+            #resizedFrame = self.hitMissOperation(resizedFrame,hitMissElement)
+            cv2.imshow('Video', resizedFrame)
+            counter, totalFrames = self.frameCounter()
+            cv2.setWindowTitle("Video","frame "+str(counter)+" of "+str(totalFrames))
+            # Wait for 25ms before moving to the next frame (40 FPS)
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
 
         if cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1:
             print("Window closed.")
@@ -97,5 +128,23 @@ class PlayVideo:
 
         self.is_counter = False
         self.counter = 0
+
+    def displayPath(self,boxList):
+        plt.plot([1,2,3,4])
+        x_list: list[int] = []
+        y_list: list[int] = []
+        for box in boxList:
+            xCord = box[0]
+            yCord = box[1]
+            width = box[2]
+            height = box[3]
+            centerXCord = (xCord+width)/2
+            x_list.append(centerXCord)
+
+            centerYCord = (yCord+height)/2
+            y_list.append(centerYCord)
+        plt.plot(x_list,y_list)
+        plt.show()
+
 
 

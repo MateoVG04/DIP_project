@@ -13,7 +13,7 @@ def match_tracker(tracker: tracker_literal):
             return cv2.TrackerMIL
 
 def select_bounding_box(video, frame) -> cv2.typing.Rect:
-    frame = video.resize_frame(frame)
+    #frame = video.resize_frame(frame)
     return cv2.selectROI(frame, False)
 
 def track_motion(video: PlayVideo,
