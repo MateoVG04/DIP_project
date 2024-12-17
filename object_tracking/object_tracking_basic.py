@@ -1,5 +1,7 @@
 from typing import Literal
 import cv2
+from cv2.typing import MatLike
+import numpy as np
 
 from PlayVideo import PlayVideo
 
@@ -13,7 +15,7 @@ def match_tracker(tracker: tracker_literal):
 def select_bounding_box(frame) -> cv2.typing.Rect:
     return cv2.selectROI(frame, False)
 
-def track_motion(video,
+def track_motion(video: np.memmap,
                  initial_bounding_box: cv2.typing.Rect | None = None,
                  algorithm: tracker_literal = "KCF",
                  ):
@@ -25,9 +27,12 @@ def track_motion(video,
     """
 
     # Initialize tracker with frame and initial bounding box
-    tracker = cv2.TrackerMIL()
-    tracker.init(video[0], initial_bounding_box)
+    tracker = cv2.TrackerMIL.create()
 
+    frame: MatLike = np.ascontiguousarray(video[0])
+    tracker.init(frame, initial_bounding_box)
+
+    # Frame by frame analysis
     for frame in video:
         # Start timer
         timer = cv2.getTickCount()
@@ -62,11 +67,11 @@ def track_motion(video,
         if k == 27: break
 
 def main():
-    video = PlayVideo.load_video_lazy(file_path="../Data/Ballenwerper_sync_380fps_006.npy")
+    video = PlayVideo(file_path="../Data/Ballenwerper_sync_380fps_006.npy")
 
-    frame = video[0]
+    frame = video.video_data[0]
     bounding_box = select_bounding_box(frame=frame)
-    track_motion(video=video, initial_bounding_box=bounding_box)
+    track_motion(video=video.video_data, initial_bounding_box=bounding_box)
 
 if __name__ == "__main__":
     main()

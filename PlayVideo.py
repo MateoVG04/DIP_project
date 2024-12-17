@@ -5,11 +5,11 @@ import cv2
 from openpyxl.styles.builtins import total
 
 
-class PlayVideo():
-    def __init__(self):
+class PlayVideo:
+    def __init__(self, file_path: Optional[str] = None):
         self.windowName = "Temp"
         self.screen_width, self.screen_height = self.get_screen_resolution()
-        self.video_data = self.load_video_lazy()
+        self.video_data = self.load_video_lazy(file_path=file_path)
         self.fps = 380
         self.is_counter = False
         self.counter = 0
