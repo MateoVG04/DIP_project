@@ -6,7 +6,7 @@ import time
 playVideo = PlayVideo()
 
 # Assuming the shape is (num_frames, height, width, channels)
-#playVideo.playVideoNormal()
+playVideo.playVideoNormal()
 #time.sleep(2)
-playVideo.playVideoDifference()
+# playVideo.playVideoDifference()
 
