@@ -2,8 +2,7 @@ import math
 from itertools import pairwise
 
 import matplotlib.pyplot as plt
-import cv2
-import numpy as np
+
 
 
 class TrajectoryAnalysis:
@@ -56,6 +55,7 @@ class TrajectoryAnalysis:
         return list(map(lambda pair: abs(pair[1] - pair[0]), pairwise(input_angles)))
 
     def displayPath(self):
+        plt.plot([1, 2, 3, 4])
         x_list: list[int] = []
         y_list: list[int] = []
         for box in self.boxList:
