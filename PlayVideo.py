@@ -58,6 +58,33 @@ class PlayVideo:
         # Wait for 25ms before moving to the next frame (40 FPS)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             return
+    def hitMissOperation(self,frame,hitMissElement):
+        # You combine them using a single matrix where the foreground has 1s, the background has -1s, and unused areas have 0s.
+        hitMiss = cv2.morphologyEx(frame,cv2.MORPH_HITMISS,hitMissElement)
+        return hitMiss
+
+    def playVideoNormal(self):
+        hitMissElement = np.array([[0, 0, 0, 0, 1, 0, 0, 0, 0,],
+                                     [0, 0, 0, 1, 1, 1, 0, 0, 0,],
+                                     [0, 0, 1, 1, 1, 1, 1, 0, 0,],
+                                     [0, 1, 1, 1, 1, 1, 1, 1, 0,],
+                                     [1, 1, 1, 1, 1, 1, 1, 1, 1,],
+                                     [0, 1, 1, 1, 1, 1, 1, 1, 0,],
+                                     [0, 0, 1, 1, 1, 1, 1, 0, 0,],
+                                     [0, 0, 0, 1, 1, 1, 0, 0, 0,],
+                                     [0, 0, 0, 0, 1, 0, 0, 0, 0,]])
+        for frame in self.video_data:
+            # Display the frame
+            resizedFrame = cv2.resize(frame, (self.screen_width, self.screen_height), interpolation=cv2.INTER_AREA)
+            #resizedFrame = cv2.GaussianBlur(resizedFrame, (5, 5), 0)
+            #resizedFrame = cv2.threshold(resizedFrame,50,255,cv2.THRESH_BINARY)[1]
+            #resizedFrame = self.hitMissOperation(resizedFrame,hitMissElement)
+            cv2.imshow('Video', resizedFrame)
+            counter, totalFrames = self.frameCounter()
+            cv2.setWindowTitle("Video","frame "+str(counter)+" of "+str(totalFrames))
+            # Wait for 25ms before moving to the next frame (40 FPS)
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
 
         if cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1:
             print("Window closed.")
@@ -97,5 +124,8 @@ class PlayVideo:
 
         self.is_counter = False
         self.counter = 0
+
+
+
 
 

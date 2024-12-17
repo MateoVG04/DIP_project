@@ -12,7 +12,8 @@ def match_tracker(tracker: tracker_literal):
         case "KCF":
             return cv2.TrackerMIL
 
-def select_bounding_box(frame) -> cv2.typing.Rect:
+def select_bounding_box(video, frame) -> cv2.typing.Rect:
+    #frame = video.resize_frame(frame)
     return cv2.selectROI(frame, False)
 
 def track_motion(video: PlayVideo,
@@ -20,16 +21,19 @@ def track_motion(video: PlayVideo,
                  algorithm: tracker_literal = "KCF",
                  ):
     """
-
     :param video:
     :param algorithm: Literal for which Algorithm to use
     :param initial_bounding_box: The bounding box for the to be tracked object
     """
+    # Defining First Frame
+    frame: MatLike = np.ascontiguousarray(video.video_data[0])
+
+    # If bounding Box is None, select it
+    if initial_bounding_box is None:
+        initial_bounding_box = cv2.selectROI(frame, False)
 
     # Initialize tracker with frame and initial bounding box
     tracker = cv2.TrackerMIL.create()
-
-    frame: MatLike = np.ascontiguousarray(video.video_data[0])
     tracker.init(frame, initial_bounding_box)
 
     # Resulting track Data
@@ -50,8 +54,9 @@ def track_motion(video: PlayVideo,
         # Draw bounding box
         if ok:
             # Tracking success
-            p1 = (int(bbox[0]), int(bbox[1]))
-            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+            x, y, width, height = bbox
+            p1 = (int(x), int(y))
+            p2 = (int(x + width), int(y + height))
             cv2.rectangle(frame, p1, p2, (255, 0, 0), 2, 1)
         else:
             # Tracking failure
@@ -72,7 +77,7 @@ def main():
     video = PlayVideo(file_path="../Data/Ballenwerper_sync_380fps_006.npy")
 
     frame = video.video_data[0]
-    bounding_box = select_bounding_box(frame=frame)
+    bounding_box = select_bounding_box(video=video, frame=frame)
 
     tracked_box = track_motion(video=video, initial_bounding_box=bounding_box)
 
