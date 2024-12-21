@@ -2,8 +2,6 @@ from typing import Optional
 
 import numpy as np
 import cv2
-from openpyxl.styles.builtins import total
-import matplotlib.pyplot as plt
 
 
 class PlayVideo:
