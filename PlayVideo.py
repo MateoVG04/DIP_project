@@ -36,7 +36,7 @@ class PlayVideo:
             file_path = 'Data/Ballenwerper_sync_380fps_006.npy'
 
         # Lazy loading means the data is only loaded into memory when it is needed (frame-by-frame)
-        return np.lib.format.open_memmap(filename=file_path, mode='r+')
+        return np.lib.format.open_memmap(filename=file_path, mode='c')
 
     def frameCounter(self):
         if not self.is_counter:
