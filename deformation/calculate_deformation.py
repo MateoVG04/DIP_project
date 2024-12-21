@@ -68,7 +68,7 @@ class CalculateDeformation:
         Given x number of points which from a framework as input
         Calculate each length of line connecting n and n+1
         :param objects_in_frame:
-        :return: List of lengths (three)
+        :return: List of lengths
         """
         return [cls.length(lhs, rhs) for lhs, rhs in pairwise(objects_in_frame)] + [cls.length(lhs=objects_in_frame[0], rhs=objects_in_frame[-1])]
 
