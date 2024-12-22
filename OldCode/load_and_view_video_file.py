@@ -42,7 +42,7 @@ for frame in calc_deformation.objects_per_frame:
 
 colors = ["blue", "green", "red", "yellow"]
 for color, internal_length in zip(colors, calc_deformation.per_frame_to_linear(internal_lengths)):
-    # Cummulative Sum smoothens bumps caused by detecting jitter
+    # Cumulative Sum smoothens bumps caused by detecting jitter
     cumsum_vec = np.cumsum(np.insert(internal_length, 0, 0))
     window_width = 5
     ma_vec = (cumsum_vec[window_width:] - cumsum_vec[:-window_width]) / window_width

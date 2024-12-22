@@ -1,12 +1,69 @@
-import cv2
+import sys
 
-from humoment import HuMoment
+import numpy as np
+from matplotlib import pyplot as plt
 
-input_npy = "Data/Ballenwerper_sync_380fps_006.npy"
-output_video_path = "Data/output_video.avi"
+from PlayVideo import PlayVideo
+from deformation.calculate_deformation import CalculateDeformation
+from humoment.hu_moment import HuMoment
+from object_tracking.test_tracked_objects import TEST_TRACKED_RECTS
 
-left_cup_reference_image = cv2.imread("Data/LeftCup.png")
-right_cup_reference_image = cv2.imread("Data/RightCup.png")
-humoment = HuMoment.HuMomentClass()
-humoment.process_frames_and_save(input_npy=input_npy, output_video_path=output_video_path, reference_image_1=left_cup_reference_image, reference_image_2=right_cup_reference_image)
-#HuMoment.play_video("Data/output_video.avi")
+
+def deformation():
+    playVideo = PlayVideo()
+    tracked_objects = TEST_TRACKED_RECTS  # Pre-computed
+
+    # Calculating deformation
+    calc_deformation = CalculateDeformation(tracked_objects=tracked_objects)
+    playVideo.to_draw_rectangles = calc_deformation.objects_per_frame
+    playVideo.draw_lines = True
+
+    # Create scatter plots
+    internal_lengths: list[list[int]] = []
+    for frame in calc_deformation.objects_per_frame:
+        internal_length_for_frame = calc_deformation.calculate_internal_length(frame)
+        internal_lengths.append(internal_length_for_frame)
+
+    colors = ["blue", "green", "red", "yellow"]
+    for color, internal_length in zip(colors, calc_deformation.per_frame_to_linear(internal_lengths)):
+        # Cumulative Sum smoothens bumps caused by detecting jitter
+        cumsum_vec = np.cumsum(np.insert(internal_length, 0, 0))
+        window_width = 5
+        ma_vec = (cumsum_vec[window_width:] - cumsum_vec[:-window_width]) / window_width
+
+        x = list(range(0, len(ma_vec)))
+        plt.scatter(x, ma_vec, label=f"Line", color=f"{color}", alpha=0.7)
+
+    # Add title and labels
+    plt.title("Change in connection line lengths")
+    plt.xlabel("X-axis")
+    plt.ylabel("Y-axis")
+
+    # Add legend
+    plt.legend()
+
+    # Show the plot
+    plt.grid(True)
+    plt.show()
+
+
+def hu_moment(object_to_be_tracked):
+    hu_moment = HuMoment(object_to_be_tracked)
+    hu_moment.process_frames_and_save("Data/Ballenwerper_sync_380fps_006.npy", "Data/" + str(object_to_be_tracked) + ".avi")
+    hu_moment.play_video("Data/" + str(object_to_be_tracked) + ".avi")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "deformation":
+            deformation()
+        elif sys.argv[1] == "humoment":
+            if len(sys.argv) > 2:
+                if sys.argv[2] == "LeftCup":
+                    hu_moment("Data/LeftCup.png")
+                elif sys.argv[2] == "RightCup":
+                    hu_moment("Data/RightCup.png")
+            else:
+                print("No arguments provided")
+    else:
+        print("Invalid command.")
