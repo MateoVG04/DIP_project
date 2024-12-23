@@ -3,10 +3,13 @@ import sys
 import numpy as np
 from matplotlib import pyplot as plt
 
-from PlayVideo import PlayVideo
 from deformation.calculate_deformation import CalculateDeformation
 from humoment.hu_moment import HuMoment
+from object_tracking.object_tracking_basic import select_bounding_box, track_motion
 from object_tracking.test_tracked_objects import TEST_TRACKED_RECTS
+from playvideo.play_video import PlayVideo
+from trajectory_analysis.test_rect_data import DATA_LIST
+from trajectory_analysis.trajectory_analysis import TrajectoryAnalysis
 
 
 def deformation():
@@ -25,14 +28,16 @@ def deformation():
         internal_lengths.append(internal_length_for_frame)
 
     colors = ["blue", "green", "red", "yellow"]
-    for color, internal_length in zip(colors, calc_deformation.per_frame_to_linear(internal_lengths)):
+    labels = ["Left cup to left circle", "Left circle to right circle", "Right circle to right cup",
+              "Left cup to right cup"]
+    for color, label, internal_length in zip(colors, labels, calc_deformation.per_frame_to_linear(internal_lengths)):
         # Cumulative Sum smoothens bumps caused by detecting jitter
         cumsum_vec = np.cumsum(np.insert(internal_length, 0, 0))
         window_width = 5
         ma_vec = (cumsum_vec[window_width:] - cumsum_vec[:-window_width]) / window_width
 
         x = list(range(0, len(ma_vec)))
-        plt.scatter(x, ma_vec, label=f"Line", color=f"{color}", alpha=0.7)
+        plt.scatter(x, ma_vec, label=f"{label}", color=f"{color}", alpha=0.7)
 
     # Add title and labels
     plt.title("Change in connection line lengths")
@@ -47,23 +52,55 @@ def deformation():
     plt.show()
 
 
-def hu_moment(object_to_be_tracked):
-    hu_moment = HuMoment(object_to_be_tracked)
-    hu_moment.process_frames_and_save("Data/Ballenwerper_sync_380fps_006.npy", "Data/" + str(object_to_be_tracked) + ".avi")
-    hu_moment.play_video("Data/" + str(object_to_be_tracked) + ".avi")
+def hu_moment_pre_created_data(file):
+    hu_moment = HuMoment()
+    hu_moment.play_video("Data/" + str(file) + ".avi")
+
+
+def hu_moment_own_data():
+    hu_moment = HuMoment()
+    hu_moment.process_frames_and_save("Data/Ballenwerper_sync_380fps_006.npy", "Humoment_own_data.avi",
+                                      "ReferenceImage.png")
+    hu_moment.play_video("Humoment_own_data.avi")
+
+
+def object_tracking_pre_created_data():
+    playVideo = PlayVideo()
+    boxes_list = DATA_LIST
+    trajectoryAnalysis = TrajectoryAnalysis(playVideo=playVideo, boxes_list=boxes_list)
+    trajectoryAnalysis.display_angle()
+    trajectoryAnalysis.display_speed()
+    trajectoryAnalysis.show_vibrations()
+
+
+def object_tracking_own_data():
+    playVideo = PlayVideo()
+    frame = playVideo.video_data[0]
+    bounding_box = select_bounding_box(video=playVideo, frame=frame)
+    boxes_list = track_motion(video=playVideo, initial_bounding_box=bounding_box)
+    trajectoryAnalysis = TrajectoryAnalysis(playVideo=playVideo, boxes_list=boxes_list)
+    trajectoryAnalysis.display_angle()
+    trajectoryAnalysis.display_speed()
+    trajectoryAnalysis.show_vibrations()
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "deformation":
             deformation()
-        elif sys.argv[1] == "humoment":
+        elif sys.argv[1] == "hu_moment_pre_created_data":
             if len(sys.argv) > 2:
                 if sys.argv[2] == "LeftCup":
-                    hu_moment("Data/LeftCup.png")
+                    hu_moment_pre_created_data("LeftCup")
                 elif sys.argv[2] == "RightCup":
-                    hu_moment("Data/RightCup.png")
+                    hu_moment_pre_created_data("RightCup")
             else:
                 print("No arguments provided")
+        elif sys.argv[1] == "hu_moment_own_data":
+            hu_moment_own_data()
+        elif sys.argv[1] == "object_tracking_pre_created_data":
+            object_tracking_pre_created_data()
+        elif sys.argv[1] == "object_tracking_own_data":
+            object_tracking_own_data()
     else:
         print("Invalid command.")

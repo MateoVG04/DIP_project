@@ -1,3 +1,4 @@
+import os
 from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
@@ -6,12 +7,9 @@ import time
 
 
 class HuMoment:
-    def __init__(self, reference_image):
-        self.reference_image = cv2.imread(reference_image, cv2.IMREAD_GRAYSCALE)
-
-        # Convert to binary
-        _, reference_binary = cv2.threshold(self.reference_image, 128, 255, cv2.THRESH_BINARY)
-        self.reference_hu = self.calculate_hu_moments(reference_binary)
+    def __init__(self):
+        self.reference_image = None
+        self.reference_hu = None
 
     def calculate_hu_moments(self, image):
         """Calculate Hu moments for a grayscale binary image."""
@@ -34,18 +32,14 @@ class HuMoment:
         """
         Process a single frame: detect objects, match Hu moments, and draw bounding boxes.
         """
-        # If frame is 3-channel color convert it to grayscale
-        if len(frame.shape) == 2:
-            gray = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-        else:
+        if len(frame.shape) == 3:  # If the frame is RGB, convert to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        else:  # Assume it's already grayscale
             gray = frame
         # Noise reduction
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         # Convert to binary
         _, binary = cv2.threshold(blurred, 128, 255, cv2.THRESH_BINARY)
-        # Ensure binary is single-channel and uint8
-        if len(binary.shape) != 2 or binary.dtype != np.uint8:
-            binary = binary.astype(np.uint8)
         # Find contours
         contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -56,7 +50,7 @@ class HuMoment:
                 mask = np.zeros_like(gray)
                 cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
                 hu_moments = self.calculate_hu_moments(mask)
-                if self.compare_hu_moments(hu_moments, threshold=0.5):
+                if self.compare_hu_moments(hu_moments, threshold=0.3):
                     x, y, w, h = cv2.boundingRect(contour)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
@@ -67,21 +61,44 @@ class HuMoment:
         processed_frame = hu_moment_obj.process_single_frame(frame)
         return index, processed_frame
 
-    def process_frames_and_save(self, input_npy, output_video_path):
+    def process_frames_and_save(self, input_npy, output_video_path, reference_image):
         """
         Process frames in parallel using ThreadPoolExecutor, match objects with reference images,
         and save the processed video to an output file.
         """
+        # Ensure output directory exists
+        output_dir = os.path.dirname(output_video_path)
+        if output_dir and not os.path.exists(output_dir):
+            print("Directory {} doesn't exist.".format(output_dir))
+            return
+
+        # Fixed resolution
+        target_width = 1920
+        target_height = 1080
+        target_size = (target_width, target_height)
+        print(f"Target resolution: {target_width}x{target_height}")
+
         # Load frames
         print("Loading input frames...")
         frames = np.load(input_npy)
         total_frames = len(frames)
         print(f"Total frames: {total_frames}")
 
+        # Calculate hu moments for reference image
+        print("Processing reference images...")
+        # Read image as grayscale
+        self.reference_image = cv2.imread(reference_image, cv2.IMREAD_GRAYSCALE)
+        # Convert to binary
+        _, reference_binary = cv2.threshold(self.reference_image, 128, 255, cv2.THRESH_BINARY)
+        # Calculate reference hu moments
+        self.reference_hu = self.calculate_hu_moments(reference_binary)
+        print("Reference Hu moments calculated.")
+
         # Initialize Video Writer
         print("Initializing video writer...")
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(output_video_path, fourcc, 20.0, (2240, 1726))
+        frame_height, frame_width = frames[0].shape[:2]
+        out = cv2.VideoWriter(output_video_path, fourcc, 20.0, target_size)
         print("Video writer initialized.")
 
         # Start processing frames in parallel
@@ -96,7 +113,20 @@ class HuMoment:
             print("Sorting frames...")
             results.sort(key=lambda x: x[0])
             for _, processed_frame in results:
-                out.write(processed_frame)  # Write each processed frame sequentially
+                # Check for frame validity
+                if processed_frame is None or processed_frame.size == 0:
+                    print("Skipping invalid frame.")
+                    continue
+
+                # Resize frame to 1920x1080
+                processed_frame = cv2.resize(processed_frame, target_size)
+
+                # Ensure BGR format
+                if len(processed_frame.shape) == 2:  # Grayscale image
+                    processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_GRAY2BGR)
+
+                # Write frame to video
+                out.write(processed_frame)
 
         # Finalize video writer
         out.release()

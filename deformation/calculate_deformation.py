@@ -2,9 +2,8 @@ from itertools import pairwise
 
 import cv2.typing
 
-from PlayVideo import PlayVideo
+from OldCode.PlayVideo import PlayVideo
 from object_tracking.test_tracked_objects import TEST_TRACKED_RECTS
-from object_tracking.track_object import TrackRectangles
 
 
 class CalculateDeformation:

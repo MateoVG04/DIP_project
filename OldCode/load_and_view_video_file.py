@@ -1,13 +1,9 @@
 import numpy as np
 
-from PlayVideo import PlayVideo
+from OldCode.PlayVideo import PlayVideo
 from deformation.calculate_deformation import CalculateDeformation
 
-from object_tracking.object_tracking_basic import track_motion, select_bounding_box
-from TrajectoryAnlysis import TrajectoryAnalysis
 from object_tracking.test_tracked_objects import TEST_TRACKED_RECTS
-from object_tracking.track_object import TrackRectangles
-from trajectory_analysis.test_rect_data import DATA_LIST
 import matplotlib.pyplot as plt
 
 playVideo = PlayVideo()
