@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 
 from deformation.calculate_deformation import CalculateDeformation
 from humoment.hu_moment import HuMoment
+from object_tracking.circle_tracker import CircleTracker
 from object_tracking.object_tracking_basic import select_bounding_box, track_motion
 from object_tracking.test_tracked_objects import TEST_TRACKED_RECTS
 from playvideo.play_video import PlayVideo
@@ -83,6 +84,11 @@ def object_tracking_own_data():
     trajectoryAnalysis.display_speed()
     trajectoryAnalysis.show_vibrations()
 
+def circle_tracker():
+    video_data = np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
+    circle_tracker = CircleTracker(video_data)
+    circle_tracker.playVideoNormal()
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -102,5 +108,7 @@ if __name__ == "__main__":
             object_tracking_pre_created_data()
         elif sys.argv[1] == "object_tracking_own_data":
             object_tracking_own_data()
+        elif sys.argv[1] == "circle_tracking":
+            circle_tracker()
     else:
         print("Invalid command.")
