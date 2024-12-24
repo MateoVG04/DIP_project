@@ -84,10 +84,16 @@ def object_tracking_own_data():
     trajectoryAnalysis.display_speed()
     trajectoryAnalysis.show_vibrations()
 
+
 def circle_tracker():
     video_data = np.lib.format.open_memmap('Data/Ballenwerper_sync_380fps_006.npy', mode='r+')
     circle_tracker = CircleTracker(video_data)
     circle_tracker.playVideoNormal()
+
+
+def play_frame_difference():
+    playVideo = PlayVideo()
+    playVideo.playVideoDifference()
 
 
 if __name__ == "__main__":
@@ -110,5 +116,7 @@ if __name__ == "__main__":
             object_tracking_own_data()
         elif sys.argv[1] == "circle_tracking":
             circle_tracker()
+        elif sys.argv[1] == "play_frame_difference":
+            play_frame_difference()
     else:
         print("Invalid command.")

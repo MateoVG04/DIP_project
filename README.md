@@ -14,17 +14,9 @@ Our method:
 python main.py deformation
 ```
 ## Angle, speed and vibration
-### Circle Tracking
-One way we tried tracking the movement of the arm was by tracking the bearings. We thought this would be a good approach since we wouldn't have to track a complex shape but just a circle. This proved to be more difficult than expected, the program had trouble locking on to the correct circle. Even if it did lock on to the bearing, the tracking wasn't accurate enough to perform the necessary measurements
-
-Using the following command you can click a circle to be tracked, notice how it only sometimes picks the bearing.
-
-```bash
-python main.py circle_tracking
-```
 Vibrations:
 * These are only calculated where the speed is 0. Done by taking the difference between the first frame of a segment of 0 speed and the frames with 0 speed after that.
-* Probably innacurate
+* Probably inaccurate
 ### Pre created data
 ```bash
 python main.py object_tracking_pre_created_data
@@ -35,6 +27,20 @@ After you have selected it you need to press enter.
 ```bash
 python main.py object_tracking_own_data
 ```
+### Circle Tracking
+One way we tried tracking the movement of the arm was by tracking the bearings. We thought this would be a good approach since we wouldn't have to track a complex shape but just a circle. This proved to be more difficult than expected, the program had trouble locking on to the correct circle. Even if it did lock on to the bearing, the tracking wasn't accurate enough to perform the necessary measurements
+
+Using the following command you can click a circle to be tracked, notice how it only sometimes picks the bearing.
+
+```bash
+python main.py circle_tracking
+```
+### Frame difference
+We also made a way where you can see the difference between each frame.
+```bash
+python main.py play_frame_difference
+```
+
 ## Hu moment
 This was one of the methods we used for tracking, but it wasn't very reliable and only seemed to be working for the right cup.
 
