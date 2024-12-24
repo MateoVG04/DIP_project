@@ -44,6 +44,10 @@ python main.py play_frame_difference
 ## Hu moment
 This was one of the methods we used for tracking, but it wasn't very reliable and only seemed to be working for the right cup.
 
+Potential improvements:
+1. Comparing the area size between the contours with similar hue values and the reference image.
+2. Using the built-in cv2.matchShapes function that uses hu moments instead of calculating the hu moments ourselves.
+
 Useful links:
 ```
 https://learnopencv.com/shape-matching-using-hu-moments-c-python/

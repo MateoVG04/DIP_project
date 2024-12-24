@@ -49,6 +49,9 @@ class HuMoment:
             if area > 500:
                 mask = np.zeros_like(gray)
                 cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
+                """if cv2.matchShapes(self.reference_image, contour, cv2.CONTOURS_MATCH_I1, 0) < 0.5:
+                    x, y, w, h = cv2.boundingRect(contour)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)"""
                 hu_moments = self.calculate_hu_moments(mask)
                 if self.compare_hu_moments(hu_moments, threshold=0.3):
                     x, y, w, h = cv2.boundingRect(contour)

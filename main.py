@@ -60,9 +60,9 @@ def hu_moment_pre_created_data(file):
 
 def hu_moment_own_data():
     hu_moment = HuMoment()
-    hu_moment.process_frames_and_save("Data/Ballenwerper_sync_380fps_006.npy", "Humoment_own_data.avi",
-                                      "ReferenceImage.png")
-    hu_moment.play_video("Humoment_own_data.avi")
+    hu_moment.process_frames_and_save("Data/Ballenwerper_sync_380fps_006.npy", "Data/Humoment_own_data.avi",
+                                      "Data/ReferenceImage.png")
+    hu_moment.play_video("Data/Humoment_own_data.avi")
 
 
 def object_tracking_pre_created_data():
