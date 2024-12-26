@@ -40,7 +40,6 @@ class TrajectoryAnalysis:
         # First align the boxes with 0 and calculate their middle
         zero_aligned_list = cls.align_with_zero(input_array)
         middle_x, middle_y = cls.calc_middle(zero_aligned_list)
-
         return list(map(lambda rect: math.atan2(rect[0] - middle_x, rect[1] - middle_y), zero_aligned_list))
 
     @classmethod
@@ -53,7 +52,7 @@ class TrajectoryAnalysis:
         :param input_angles:
         :return: list of difference in angle represented by floating point
         """
-        return list(map(lambda pair: abs(pair[1] - pair[0]), pairwise(input_angles)))
+        return list(map(lambda pair: pair[1] - pair[0], pairwise(input_angles)))
 
     def displayPath(self):
         x_list: list[int] = []
@@ -63,7 +62,6 @@ class TrajectoryAnalysis:
             yCord = box[1]
             width = box[2]
             height = box[3]
-            print("(" + str(xCord) + "," + str(yCord) + "," + str(width) + "," + str(height) + "),")
             centerXCord = (xCord + width) / 2
             x_list.append(centerXCord)
 
@@ -81,6 +79,7 @@ class TrajectoryAnalysis:
             angle_calculate = angle * (180 / math.pi)
             angles_degree.append(angle_calculate)
         return angles_degree
+
 
     def display_angle(self):
         angles_rad = self.calculate_angle(self.boxList)
