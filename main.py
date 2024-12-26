@@ -42,8 +42,8 @@ def deformation():
 
     # Add title and labels
     plt.title("Connection line lengths")
-    plt.xlabel("X-axis")
-    plt.ylabel("Y-axis")
+    plt.xlabel("X-axis - Frames")
+    plt.ylabel("Y-axis - Length")
 
     # Add legend
     plt.legend()
