@@ -41,7 +41,7 @@ def deformation():
         plt.scatter(x, ma_vec, label=f"{label}", color=f"{color}", alpha=0.7)
 
     # Add title and labels
-    plt.title("Change in connection line lengths")
+    plt.title("Connection line lengths")
     plt.xlabel("X-axis")
     plt.ylabel("Y-axis")
 
